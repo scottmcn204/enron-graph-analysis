@@ -9,8 +9,11 @@ emails = pd.read_csv("emails.csv")
 G = nx.DiGraph()
 edge_weights = defaultdict(int)
 
+# pd.set_option('display.max_colwidth', None)
+# print(emails['message'].head())
+
 def extract_sender(message):
-    match = re.search(r'From:\s(.+)', str(message))
+    match = re.search(r'X-From:\s(.+)', str(message))
     if match:
         senders = match.group(1)
         return [r.strip() for r in senders.split(',')]
@@ -18,7 +21,7 @@ def extract_sender(message):
         return []
 
 def extract_recipients(message):
-    match = re.search(r'To:\s(.+)', str(message))
+    match = re.search(r'X-To:\s(.+)', str(message))
     if match:
         recipients = match.group(1)
         return [r.strip() for r in recipients.split(',')]
