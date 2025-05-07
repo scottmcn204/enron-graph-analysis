@@ -9,13 +9,14 @@ emails = pd.read_csv("emails.csv")
 G = nx.DiGraph()
 edge_weights = defaultdict(int)
 
-# pd.set_option('display.max_colwidth', None)
-# print(emails['message'].head())
+pd.set_option('display.max_colwidth', None)
+print(emails['message'].head())
 
 def extract_sender(message):
     match = re.search(r'X-From:\s(.+)', str(message))
     if match:
         senders = match.group(1)
+        senders = senders.split('<')[0]
         return [r.strip() for r in senders.split(',')]
     else:
         return []
@@ -24,6 +25,7 @@ def extract_recipients(message):
     match = re.search(r'X-To:\s(.+)', str(message))
     if match:
         recipients = match.group(1)
+        recipients = recipients.split('<')[0]
         return [r.strip() for r in recipients.split(',')]
     else:
         return []
@@ -38,7 +40,7 @@ for index, row in emails.iterrows():
         if sender and recipient:
             edge_weights[(sender,recipient)] += 1
 for (sender, recipient), weigth in edge_weights.items():
-    G.add_edge(sender.split('@')[0].lower(), recipient.split('@')[0].lower(), weigth=weigth)
+    G.add_edge(sender.split('@')[0].lower().replace(' ', '').replace('\'', '').replace('.', '').replace('-', ' '), recipient.split('@')[0].lower().replace(' ', '').replace('.', '').replace('-', ' ').replace('\'', ''), weigth=weigth)
             
 
 print("Number of nodes:", G.number_of_nodes())

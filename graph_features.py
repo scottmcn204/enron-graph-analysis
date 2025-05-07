@@ -13,7 +13,11 @@ features['weighted_degree'] = dict(G.degree(weight='weight'))
 features['betweeness'] = nx.betweenness_centrality(G, k=100, seed=42)
 features['pagerank'] = nx.pagerank(G)
 
-print(features)
+with pd.option_context('display.max_rows', None,
+                       'display.max_columns', None,
+                       'display.precision', 3,
+                       ):
+    print(features)
 
 with open("graph_features.pkl", "wb") as f:
     pickle.dump(features, f)

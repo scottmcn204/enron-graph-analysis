@@ -1,5 +1,6 @@
 import pandas as pd
 
-employee = pd.read_csv("EnronEmployeeInformation_with_roles.csv")
-employee.to_csv("enron_info", index=False, quoting=1)
+employees = pd.read_csv("enron_info.csv")
+employees['Name'] = employees['Name'].astype(str).str.lower().str.replace(' ', '',regex=False).str.replace('.','',regex=False).str.replace('-', '')
+employees.to_csv("enron_info2.csv", index=False, quoting=1)
 
