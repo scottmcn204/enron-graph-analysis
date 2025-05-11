@@ -6,11 +6,15 @@ import matplotlib.pyplot as plt
 import pickle
 
 emails = pd.read_csv("emails.csv")
+enronInfo = pd.read_csv("enron_info2.csv")
+emailAddresses = list(enronInfo['EmailID'])
+names = list(enronInfo['Name'])
+folders = list(enronInfo['Folder'])
 G = nx.DiGraph()
 edge_weights = defaultdict(int)
 
-pd.set_option('display.max_colwidth', None)
-print(emails['message'].head())
+# pd.set_option('display.max_colwidth', None)
+# print(emails['message'].head())
 
 def extract_sender(message):
     match = re.search(r'X-From:\s(.+)', str(message))
@@ -40,7 +44,11 @@ for index, row in emails.iterrows():
         if sender and recipient:
             edge_weights[(sender,recipient)] += 1
 for (sender, recipient), weigth in edge_weights.items():
-    G.add_edge(sender.split('@')[0].lower().replace(' ', '').replace('\'', '').replace('.', '').replace('-', ' '), recipient.split('@')[0].lower().replace(' ', '').replace('.', '').replace('-', ' ').replace('\'', ''), weigth=weigth)
+    senderID = sender.split('@')[0].lower().replace(" ", "").replace("\'", "").replace("\"", "").replace(".", "").replace("_", "")
+    recipientID = recipient.split('@')[0].lower().replace(" ", "").replace("\'", "").replace("\"", "").replace(".", "").replace("_", "")
+    if (senderID in names) and (recipientID in names):
+        G.add_edge(senderID, recipientID, weigth=weigth)
+    
             
 
 print("Number of nodes:", G.number_of_nodes())
@@ -48,4 +56,10 @@ print("Number of edges:", G.number_of_edges())
 
 with open("graph.pkl", "wb") as f:
     pickle.dump(G, f)
+
+
+
+with open('allemails.txt', 'w') as output:
+    for node in G.nodes:
+        output.write(node + "\n")
  
