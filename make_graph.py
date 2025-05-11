@@ -39,12 +39,12 @@ def extract_date(message):
 
 emails['sender'] = emails['message'].apply(extract_sender)
 emails['recipients'] = emails['message'].apply(extract_recipients)
-date_series = emails['message'].str.extract(r'Date:\s(.+)', expand=False)
-emails['date'] = pd.to_datetime(date_series, errors='coerce', format="%a, %d %b %Y %H:%M:%S %z")
-print(emails['date'])
-emails.dropna(subset=['date'], inplace=True)
+date_series = emails['message'].str.extract(r'Date:\s(.+)', expand=False) 
+clean_date_series = date_series.str.replace(r'\s*\(.*\)', '', regex=True)
+emails['date'] = pd.to_datetime(clean_date_series, errors='coerce', format="%a, %d %b %Y %H:%M:%S %z", utc=True)
+emails.dropna(subset=['date'], inplace=True)    
+emails = emails[(emails['date'] >= '1999-01-01') & (emails['date'] < '2003-01-01')]
 emails['month'] = emails['date'].dt.to_period('M')
-print(emails['month'])
 
 for period, emailgroup in emails.groupby('month'):
     G = nx.DiGraph()
@@ -60,11 +60,7 @@ for period, emailgroup in emails.groupby('month'):
         recipientID = recipient.split('@')[0].lower().replace(" ", "").replace("\'", "").replace("\"", "").replace(".", "").replace("_", "")
         G.add_edge(senderID, recipientID, weigth=weigth)
     monthly_graphs[str(period)] = G
-
-for G in monthly_graphs:
-    print("Number of nodes:", G.number_of_nodes())
-    print("Number of edges:", G.number_of_edges())
-print(monthly_graphs)
+    print(str(period) + " : " + str(G.number_of_nodes()))
 
 with open("graph.pkl", "wb") as f:
     pickle.dump(monthly_graphs, f)
