@@ -1,8 +1,9 @@
 import pandas as pd
 import pickle
 import networkx as nx
-from networkx.algorithms.link_prediction import adamic_adar_index, jaccard_coefficient, preferential_attachment, common_neighbor_centrality
+from networkx.algorithms.link_prediction import adamic_adar_index, jaccard_coefficient, preferential_attachment
 from itertools import product
+import random
 
 def directed_to_undirected_with_weights(G_directed):
     G_undirected = nx.Graph()
@@ -21,25 +22,26 @@ for i in range(len(monthly_graphs) - 1):
     Gi = directed_to_undirected_with_weights(monthly_graphs[i])
     Gi1 = directed_to_undirected_with_weights(monthly_graphs[i+1])
     all_nodes = set(Gi.nodes())
-    candidate_edges = list(product(all_nodes, all_nodes))
     candidate_edges = [(u, v) for u, v in product(all_nodes, all_nodes) if u != v and not Gi.has_edge(u, v)]
-    aa = dict(((u,v), p) for u, v, p in adamic_adar_index(Gi, candidate_edges))
-    jc = dict(((u,v), p) for u, v, p in jaccard_coefficient(Gi, candidate_edges))
-    pa = dict(((u,v), p) for u, v, p in preferential_attachment(Gi, candidate_edges))
-    # cn = {(u, v): len(list(common_neighbor_centrality(Gi, u, v)))
-        #   for u, v in candidate_edges if u in Gi and v in Gi}
-    labels = []
-    for u, v in candidate_edges:
-        label = 1 if Gi1.has_edge(u, v) else 0
-        labels.append(label)
+
+    positive_edges = [(u, v) for u, v in candidate_edges if Gi1.has_edge(u, v)]
+    negative_edges = [(u, v) for u, v in candidate_edges if not Gi1.has_edge(u, v)]
+
+    sampled_neg = random.sample(negative_edges, min(len(negative_edges), len(positive_edges) * 2))
+    balanced_edges = positive_edges + sampled_neg
+    labels = [1] * len(positive_edges) + [0] * len(sampled_neg)
+
+    aa = dict(((u,v), p) for u, v, p in adamic_adar_index(Gi, balanced_edges))
+    jc = dict(((u,v), p) for u, v, p in jaccard_coefficient(Gi, balanced_edges))
+    pa = dict(((u,v), p) for u, v, p in preferential_attachment(Gi, balanced_edges))
+
     features = [] 
-    for edge in candidate_edges:
+    for edge in balanced_edges:
         row = [
             edge,
             aa.get(edge, 0),
             jc.get(edge, 0),
             pa.get(edge, 0),
-            # cn.get(edge, 0),
         ]
         features.append(row)
 

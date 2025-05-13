@@ -13,6 +13,10 @@ filtered_monthly_graphs = []
 for month, G in enumerate(monthly_graphs):
     subgraph = G.subgraph(common_nodes).copy()
     filtered_monthly_graphs.append(subgraph)
+    for u, v, data in G.edges(data=True):
+        weight = data.get('weight', None)
+        if weight != None:
+            print(f"Edge ({u}, {v}) has weight: {weight}")
 
 with open("subgraphs.pkl", "wb") as f:
     pickle.dump(filtered_monthly_graphs, f)

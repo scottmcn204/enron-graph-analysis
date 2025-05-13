@@ -55,14 +55,12 @@ for index, (period, emailgroup) in enumerate(emails.groupby('month')):
         for recipient in recipients:
             if sender and recipient and (sender != recipient):
                 edge_weights[(sender,recipient)] += 1
-    for (sender, recipient), weigth in edge_weights.items():
+    for (sender, recipient), weight in edge_weights.items():
         senderID = sender.split('@')[0].lower().replace(" ", "").replace("\'", "").replace("\"", "").replace(".", "").replace("_", "")
         recipientID = recipient.split('@')[0].lower().replace(" ", "").replace("\'", "").replace("\"", "").replace(".", "").replace("_", "")
-        G.add_edge(senderID, recipientID, weigth=weigth)
+        G.add_edge(senderID, recipientID, weight=weight)
     monthly_graphs.append(G)
 
-print(type(monthly_graphs))
-print(type(monthly_graphs[0]))
 with open("graph.pkl", "wb") as f:
     pickle.dump(monthly_graphs, f)
 
