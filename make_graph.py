@@ -7,7 +7,7 @@ import pickle
 
 emails = pd.read_csv("emails.csv")
 edge_weights = defaultdict(int)
-monthly_graphs = {}
+monthly_graphs = list()
 
 # pd.set_option('display.max_colwidth', None)
 # print(emails['message'].head())
@@ -43,25 +43,26 @@ date_series = emails['message'].str.extract(r'Date:\s(.+)', expand=False)
 clean_date_series = date_series.str.replace(r'\s*\(.*\)', '', regex=True)
 emails['date'] = pd.to_datetime(clean_date_series, errors='coerce', format="%a, %d %b %Y %H:%M:%S %z", utc=True)
 emails.dropna(subset=['date'], inplace=True)    
-emails = emails[(emails['date'] >= '1999-01-01') & (emails['date'] < '2003-01-01')]
+emails = emails[(emails['date'] >= '2000-08-01') & (emails['date'] < '2002-02-01')]
 emails['month'] = emails['date'].dt.to_period('M')
 
-for period, emailgroup in emails.groupby('month'):
+for index, (period, emailgroup) in enumerate(emails.groupby('month')):
     G = nx.DiGraph()
     edge_weights.clear()
     for _, row in emailgroup.iterrows():
         sender = row['sender'][0]
         recipients = row['recipients']
         for recipient in recipients:
-            if sender and recipient:
+            if sender and recipient and (sender != recipient):
                 edge_weights[(sender,recipient)] += 1
     for (sender, recipient), weigth in edge_weights.items():
         senderID = sender.split('@')[0].lower().replace(" ", "").replace("\'", "").replace("\"", "").replace(".", "").replace("_", "")
         recipientID = recipient.split('@')[0].lower().replace(" ", "").replace("\'", "").replace("\"", "").replace(".", "").replace("_", "")
         G.add_edge(senderID, recipientID, weigth=weigth)
-    monthly_graphs[str(period)] = G
-    print(str(period) + " : " + str(G.number_of_nodes()))
+    monthly_graphs.append(G)
 
+print(type(monthly_graphs))
+print(type(monthly_graphs[0]))
 with open("graph.pkl", "wb") as f:
     pickle.dump(monthly_graphs, f)
 
