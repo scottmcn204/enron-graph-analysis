@@ -52,7 +52,8 @@ for i in range(len(monthly_graphs) - 1):
         cc_u = nx.clustering(Gi, u)
         cc_v = nx.clustering(Gi, v)
         row = {
-            "edge": (u, v),
+            "u": u,
+            "v" : v,
             "adamic_adar": aa.get((u, v), 0),
             "jaccard": jc.get((u, v), 0),
             "preferential_attachment": pa.get((u, v), 0),
@@ -70,6 +71,5 @@ for i in range(len(monthly_graphs) - 1):
 
     df = pd.DataFrame(features)
     df["label"] = labels
-    print(df)
     df.to_csv(("features" + str(i) + ".csv"), index=False)
 

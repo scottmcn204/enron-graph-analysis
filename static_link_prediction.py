@@ -7,7 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pickle
 
-features = sorted(glob.glob("features/features*.csv"))[:17]
+features = sorted(glob.glob("features/old/features*.csv"))[:17]
 dfs = [pd.read_csv(f) for f in features]
 data = pd.concat(dfs, ignore_index=True)
 
@@ -36,8 +36,19 @@ with open("predicted_edges.pkl", "wb") as f:
 
 
 
-corr = data.drop(columns=["edge"]).corr()
-plt.figure(figsize=(10, 8))
-sns.heatmap(corr, annot=True, cmap='coolwarm')
-plt.title("Feature Correlation Matrix")
-plt.savefig("plots/featurecorr.png")
+# corr = data.drop(columns=["edge"]).corr()
+# plt.figure(figsize=(10, 8))
+# sns.heatmap(corr, annot=True, cmap='coolwarm')
+# plt.title("Feature Correlation Matrix")
+# plt.savefig("plots/featurecorr.png")
+
+
+# importances = model.feature_importances_
+# feature_names = X.columns
+# plt.figure(figsize=(8, 4))
+# sns.barplot(x=importances, y=feature_names)
+# plt.title("Feature Importances")
+# plt.xlabel("Importance")
+# plt.ylabel("Feature")
+# plt.tight_layout()
+# plt.savefig("plots/importances.png")
