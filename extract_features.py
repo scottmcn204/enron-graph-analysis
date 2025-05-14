@@ -1,7 +1,7 @@
 import pandas as pd
 import pickle
 import networkx as nx
-from networkx.algorithms.link_prediction import adamic_adar_index, jaccard_coefficient, preferential_attachment
+from networkx.algorithms.link_prediction import adamic_adar_index, jaccard_coefficient, preferential_attachment, resource_allocation_index
 from itertools import product
 import random
 
@@ -34,18 +34,41 @@ for i in range(len(monthly_graphs) - 1):
     aa = dict(((u,v), p) for u, v, p in adamic_adar_index(Gi, balanced_edges))
     jc = dict(((u,v), p) for u, v, p in jaccard_coefficient(Gi, balanced_edges))
     pa = dict(((u,v), p) for u, v, p in preferential_attachment(Gi, balanced_edges))
-
+    ra = dict(((u, v), p) for u, v, p in resource_allocation_index(Gi, candidate_edges))
     features = [] 
-    for edge in balanced_edges:
-        row = [
-            edge,
-            aa.get(edge, 0),
-            jc.get(edge, 0),
-            pa.get(edge, 0),
-        ]
+    for u, v in balanced_edges:
+        try:
+            cn_count = len(list(nx.common_neighbors(Gi, u, v)))
+        except:
+            cn_count = 0
+        try:
+            spl = nx.shortest_path_length(Gi, u, v)
+        except nx.NetworkXNoPath:
+            spl = -1
+        deg_u = Gi.degree(u)
+        deg_v = Gi.degree(v)
+        wdeg_u = Gi.degree(u, weight="weight")
+        wdeg_v = Gi.degree(v, weight="weight")
+        cc_u = nx.clustering(Gi, u)
+        cc_v = nx.clustering(Gi, v)
+        row = {
+            "edge": (u, v),
+            "adamic_adar": aa.get((u, v), 0),
+            "jaccard": jc.get((u, v), 0),
+            "preferential_attachment": pa.get((u, v), 0),
+            "resource_allocation": ra.get((u, v), 0),
+            "common_neighbors": cn_count,
+            "shortest_path": spl,
+            "deg_u": deg_u,
+            "deg_v": deg_v,
+            "wdeg_u": wdeg_u,
+            "wdeg_v": wdeg_v,
+            "clustering_u": cc_u,
+            "clustering_v": cc_v,
+        }
         features.append(row)
 
-    df = pd.DataFrame(features, columns=["edge", "adamic_adar", "jaccard", "preferential_attachment"])
+    df = pd.DataFrame(features)
     df["label"] = labels
     print(df)
     df.to_csv(("features" + str(i) + ".csv"), index=False)
