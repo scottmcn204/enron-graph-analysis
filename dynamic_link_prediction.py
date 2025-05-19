@@ -7,8 +7,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pickle
 
-train_months = list(range(0, 12))
-test_months = list(range(12, 13))
+train_months = list(range(0, 16))
+test_months = list(range(16, 17))
 train_files = [f"features/features{m}.csv" for m in train_months]
 test_files = [f"features/features{m}.csv" for m in test_months]
 train_df = pd.concat([pd.read_csv(f) for f in train_files], ignore_index=True)
@@ -52,3 +52,12 @@ plt.legend()
 plt.grid(True)
 plt.savefig("auc.png")
 
+importances = model.feature_importances_
+feature_names = X_train.columns
+plt.figure(figsize=(8, 4))
+sns.barplot(x=importances, y=feature_names)
+plt.title("Feature Importances")
+plt.xlabel("Importance")
+plt.ylabel("Feature")
+plt.tight_layout()
+plt.savefig("plots/dynamicimportances.png")
