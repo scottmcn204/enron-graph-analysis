@@ -58,12 +58,13 @@ def directed_to_undirected_with_weights(G_directed):
             G_undirected.add_edge(u, v, weight=weight)
     return G_undirected
 
-with open("subgraphs.pkl", "rb") as f:
+with open("graph.pkl", "rb") as f:
     monthly_graphs = pickle.load(f)
 
 history = 3
 
-for i in range(len(monthly_graphs) - 1):
+for i in range(14, len(monthly_graphs) - 1):
+    print("month" + str(i))
     Gi = directed_to_undirected_with_weights(monthly_graphs[i])
     Gi1 = directed_to_undirected_with_weights(monthly_graphs[i+1])
     history_graphs = [directed_to_undirected_with_weights(monthly_graphs[j]) 

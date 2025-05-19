@@ -7,8 +7,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pickle
 
-train_months = list(range(0, 16))
-test_months = list(range(16, 17))
+train_months = list(range(0, 12))
+test_months = list(range(12, 13))
 train_files = [f"features/features{m}.csv" for m in train_months]
 test_files = [f"features/features{m}.csv" for m in test_months]
 train_df = pd.concat([pd.read_csv(f) for f in train_files], ignore_index=True)
@@ -41,9 +41,10 @@ with open("actual_edges.pkl", "wb") as f:
 y_scores = model.predict_proba(X_test)[:, 1] 
 fpr, tpr, thresholds = roc_curve(y_test, y_scores)
 roc_auc = auc(fpr, tpr)
+print(roc_auc)
 
 plt.plot(fpr, tpr, label=f"AUC = {roc_auc:.2f}")
-plt.plot([0, 1], [0, 1], 'k--')  # random classifier line
+plt.plot([0, 1], [0, 1], 'k--')
 plt.xlabel("False Positive Rate")
 plt.ylabel("True Positive Rate")
 plt.title("ROC Curve for Dynamic Link Prediction")
