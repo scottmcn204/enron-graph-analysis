@@ -63,7 +63,7 @@ with open("graph.pkl", "rb") as f:
 
 history = 3
 
-for i in range(14, len(monthly_graphs) - 1):
+for i in range(len(monthly_graphs) - 1):
     print("month" + str(i))
     Gi = directed_to_undirected_with_weights(monthly_graphs[i])
     Gi1 = directed_to_undirected_with_weights(monthly_graphs[i+1])
